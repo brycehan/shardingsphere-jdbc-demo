@@ -1,4 +1,4 @@
-# Shardingsphere Jdbc Demo
+# ShardingSphere-JDBC Demo
 
 - 读写分离
 - 垂直分库
