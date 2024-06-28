@@ -1,1 +1,16 @@
-spring.application.name=shardingsphere-jdbc-demo
+spring:
+  application:
+    name: shardingsphere-jdbc-demo
+
+  # 数据库配置
+  datasource:
+    driver-class-name: org.apache.shardingsphere.driver.ShardingSphereDriver
+    # 读写分离
+    url: jdbc:shardingsphere:classpath:readwrite-splitting.yml
+    # 垂直分库
+#    url: jdbc:shardingsphere:classpath:vertical-sharding.yml
+    # 水平分片
+#    url: jdbc:shardingsphere:classpath:horizontal-sharding.yml
+
+server:
+  port: 20001

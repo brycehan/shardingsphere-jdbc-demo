@@ -1,8 +1,8 @@
-package com.atguigu.shargingjdbcdemo.controller;
+package com.brycehan.shardingsphere.jdbc.controller;
 
-import com.atguigu.shargingjdbcdemo.entity.User;
-import com.atguigu.shargingjdbcdemo.mapper.UserMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.brycehan.shardingsphere.jdbc.entity.User;
+import com.brycehan.shardingsphere.jdbc.mapper.UserMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -11,15 +11,14 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/user")
+@RequiredArgsConstructor
 public class UserController {
 
-    @Autowired
-    private UserMapper userMapper;
+    private final UserMapper userMapper;
 
+    @SuppressWarnings("unused")
     @GetMapping("selectAll")
-    public void selectAll(){
-
+    public void selectAll() {
         List<User> users = userMapper.selectList(null);
-
     }
 }

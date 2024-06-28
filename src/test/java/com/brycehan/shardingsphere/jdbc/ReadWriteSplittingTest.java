@@ -19,7 +19,7 @@ import java.util.List;
  */
 @Slf4j
 @SpringBootTest
-public class ReadWriteTest {
+public class ReadWriteSplittingTest {
 
     @Autowired
     private UserMapper userMapper;
@@ -66,4 +66,5 @@ public class ReadWriteTest {
         List<User> users3 = this.userMapper.selectList(null);
         List<User> users4 = this.userMapper.selectList(null);
     }
+
 }

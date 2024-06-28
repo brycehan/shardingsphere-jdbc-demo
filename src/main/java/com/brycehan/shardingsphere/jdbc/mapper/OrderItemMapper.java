@@ -1,7 +1,8 @@
-package com.atguigu.shargingjdbcdemo.mapper;
+package com.brycehan.shardingsphere.jdbc.mapper;
 
-import com.atguigu.shargingjdbcdemo.entity.OrderItem;
+
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.brycehan.shardingsphere.jdbc.entity.OrderItem;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper

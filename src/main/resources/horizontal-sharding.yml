@@ -1,40 +1,106 @@
 # JDBC database name. In cluster mode, use this parameter to connect ShardingSphere-JDBC and ShardingSphere-Proxy.
 # Default：logic_db
-databaseName (?):
-
+databaseName: sharding_ds
 mode:
+  # 模式类型
   type: Standalone
   repository:
-    #  # 持久化仓库类型
+    # 持久化仓库类型
     type: JDBC
-    # 持久化仓库所需属性
-    props:
-      data-source-repository-class: org.apache.shardingsphere.mode.manager.cluster.coordinator.registry.config.service.DataSourcesSchemaRegistryService
+
 # 数据源配置，可配置多个
 dataSources:
   # 数据源名称
-  write-ds1:
+  user_ds:
     # 数据源完整类名
     dataSourceClassName: com.zaxxer.hikari.HikariDataSource
     # 数据库驱动类名，以数据库连接池自身配置为准
     driverClassName: com.mysql.cj.jdbc.Driver
-    jdbcUrl: jdbc:mysql://192.168.0.201:3306/bryce_readwrite_ds?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=UTF-8&nullDatabaseMeansCurrent=true&useServerPrepStmts=true&cachePrepStmts=true
+    jdbcUrl: jdbc:mysql://192.168.0.201:3306/bryce_user?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=UTF-8&nullDatabaseMeansCurrent=true&useServerPrepStmts=true&cachePrepStmts=true
     username: root
     password: 2eZpo5L6HW_1
-  read-ds1:
+  order_ds_0:
     # 数据源完整类名
     dataSourceClassName: com.zaxxer.hikari.HikariDataSource
     # 数据库驱动类名，以数据库连接池自身配置为准
     driverClassName: com.mysql.cj.jdbc.Driver
-    jdbcUrl: jdbc:mysql://192.168.0.202:3306/bryce_readwrite_ds?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=UTF-8&nullDatabaseMeansCurrent=true&useServerPrepStmts=true&cachePrepStmts=true
+    jdbcUrl: jdbc:mysql://192.168.0.201:3306/bryce_order_0?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=UTF-8&nullDatabaseMeansCurrent=true&useServerPrepStmts=true&cachePrepStmts=true
     username: root
     password: 2eZpo5L6HW_1
-rules:
-  - !FOO_XXX
-    ...
-  - !BAR_XXX
-    ...
+  order_ds_1:
+    # 数据源完整类名
+    dataSourceClassName: com.zaxxer.hikari.HikariDataSource
+    # 数据库驱动类名，以数据库连接池自身配置为准
+    driverClassName: com.mysql.cj.jdbc.Driver
+    jdbcUrl: jdbc:mysql://192.168.0.201:3306/bryce_order_1?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=UTF-8&nullDatabaseMeansCurrent=true&useServerPrepStmts=true&cachePrepStmts=true
+    username: root
+    password: 2eZpo5L6HW_1
 
+rules:
+  - !SHARDING
+    # 数据分片规则配置
+    tables:
+      t_user: # 逻辑表名称
+        actualDataNodes: user_ds.t_user # 由数据源名 + 表名组成（参考 Inline 语法规则）
+      t_order: # 逻辑表名称
+        actualDataNodes: order_ds_${0..1}.t_order_${0..1} # 由数据源名 + 表名组成（参考 Inline 语法规则）
+        databaseStrategy: # 分库策略
+          standard: # 用于单分片键的标准分片场景
+            shardingColumn: user_id  # 分片列名称
+            shardingAlgorithmName: database_inline # 分片算法名称
+        tableStrategy: # 分表策略，同分库策略
+          standard: # 用于单分片键的标准分片场景
+            shardingColumn: order_no  # 分片列名称
+            shardingAlgorithmName: t_order_inline # 分片算法名称
+      t_order_item: # 逻辑表名称
+        actualDataNodes: order_ds_${0..1}.t_order_item_${0..1} # 由数据源名 + 表名组成（参考 Inline 语法规则）
+        databaseStrategy: # 分库策略
+          standard: # 用于单分片键的标准分片场景
+            shardingColumn: user_id  # 分片列名称
+            shardingAlgorithmName: database_inline # 分片算法名称
+        tableStrategy: # 分表策略，同分库策略
+          standard: # 用于单分片键的标准分片场景
+            shardingColumn: order_no  # 分片列名称
+            shardingAlgorithmName: t_order_item_inline # 分片算法名称
+    # 绑定表配置
+    bindingTables:
+      - t_order,t_order_item
+    # 默认数据库分片策略
+    defaultDatabaseStrategy:
+      none:
+    # 默认表分片策略
+    defaultTableStrategy:
+      none:
+    # 分片算法配置
+    shardingAlgorithms:
+      database_inline: # 分片算法名称
+        type: INLINE # 分片算法类型，行表达式分片算法
+        props: # 分片算法属性配置
+          algorithm-expression: order_ds_${user_id % 2} # 分片算法表达式
+      t_order_inline: # 分片算法名称
+        type: INLINE # 分片算法类型，行表达式分片算法
+        props: # 分片算法属性配置
+          algorithm-expression: t_order_${Math.abs(order_no.hashCode()) % 2} # 分片算法表达式
+      t_order_item_inline: # 分片算法名称
+        type: INLINE # 分片算法类型，行表达式分片算法
+        props: # 分片算法属性配置
+          algorithm-expression: t_order_item_${Math.abs(order_no.hashCode()) % 2} # 分片算法表达式
+      mod_2: # 分片算法名称
+        type: MOD # 分片算法类型，取模分片算法
+        props: # 分片算法属性配置
+          sharding-count: 2 # 分片数量
+      hash_mod_2: # 分片算法名称
+        type: HASH_MOD # 分片算法类型，哈希取模分片算法
+        props: # 分片算法属性配置
+          sharding-count: 2 # 分片数量
+      hash_mod_4: # 分片算法名称
+        type: HASH_MOD # 分片算法类型，哈希取模分片算法
+        props: # 分片算法属性配置
+          sharding-count: 4 # 分片数量
+  - !BROADCAST
+    # 广播表规则列表
+    tables:
+      - t_dict
 props:
-  key_1: value_1
-  key_2: value_2
+  # 在日志中打印 SQL
+  sql-show: true

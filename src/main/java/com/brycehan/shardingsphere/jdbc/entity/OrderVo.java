@@ -1,4 +1,4 @@
-package com.atguigu.shargingjdbcdemo.entity;
+package com.brycehan.shardingsphere.jdbc.entity;
 
 import lombok.Data;
 

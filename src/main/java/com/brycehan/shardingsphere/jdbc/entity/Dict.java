@@ -1,4 +1,4 @@
-package com.atguigu.shargingjdbcdemo.entity;
+package com.brycehan.shardingsphere.jdbc.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -9,7 +9,8 @@ import lombok.Data;
 @Data
 public class Dict {
     //可以使用MyBatisPlus的雪花算法
-    @TableId(type = IdType.ASSIGN_ID)
+//    @TableId(type = IdType.ASSIGN_ID)
+    @TableId(type = IdType.NONE)
     private Long id;
     private String dictType;
 }

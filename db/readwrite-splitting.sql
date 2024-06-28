@@ -1,5 +1,10 @@
-create database if not exists bryce_readwrite_ds;
-use bryce_readwrite_ds;
+-- 数据库读写分离
+-- 删除 bryce_readwrite 数据库
+drop database if exists bryce_readwrite;
+
+-- 创建 bryce_readwrite 数据库
+create database bryce_readwrite;
+use bryce_readwrite;
 
 create table t_user (
     id bigint auto_increment,

@@ -1,40 +1,64 @@
 # JDBC database name. In cluster mode, use this parameter to connect ShardingSphere-JDBC and ShardingSphere-Proxy.
 # Default：logic_db
-databaseName (?):
-
+databaseName: readwrite_ds
 mode:
   type: Standalone
   repository:
     #  # 持久化仓库类型
     type: JDBC
-    # 持久化仓库所需属性
-    props:
-      data-source-repository-class: org.apache.shardingsphere.mode.manager.cluster.coordinator.registry.config.service.DataSourcesSchemaRegistryService
+
 # 数据源配置，可配置多个
 dataSources:
   # 数据源名称
-  write-ds1:
+  write_ds:
     # 数据源完整类名
     dataSourceClassName: com.zaxxer.hikari.HikariDataSource
     # 数据库驱动类名，以数据库连接池自身配置为准
     driverClassName: com.mysql.cj.jdbc.Driver
-    jdbcUrl: jdbc:mysql://192.168.0.201:3306/bryce_readwrite_ds?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=UTF-8&nullDatabaseMeansCurrent=true&useServerPrepStmts=true&cachePrepStmts=true
+    jdbcUrl: jdbc:mysql://192.168.0.201:3306/bryce_readwrite?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=UTF-8&nullDatabaseMeansCurrent=true&useServerPrepStmts=true&cachePrepStmts=true
     username: root
     password: 2eZpo5L6HW_1
-  read-ds1:
+  read_ds_1:
     # 数据源完整类名
     dataSourceClassName: com.zaxxer.hikari.HikariDataSource
     # 数据库驱动类名，以数据库连接池自身配置为准
     driverClassName: com.mysql.cj.jdbc.Driver
-    jdbcUrl: jdbc:mysql://192.168.0.202:3306/bryce_readwrite_ds?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=UTF-8&nullDatabaseMeansCurrent=true&useServerPrepStmts=true&cachePrepStmts=true
+    jdbcUrl: jdbc:mysql://192.168.0.202:3306/bryce_readwrite?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=UTF-8&nullDatabaseMeansCurrent=true&useServerPrepStmts=true&cachePrepStmts=true
     username: root
     password: 2eZpo5L6HW_1
+  read_ds_2:
+    # 数据源完整类名
+    dataSourceClassName: com.zaxxer.hikari.HikariDataSource
+    # 数据库驱动类名，以数据库连接池自身配置为准
+    driverClassName: com.mysql.cj.jdbc.Driver
+    jdbcUrl: jdbc:mysql://192.168.0.202:3306/bryce_readwrite?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=UTF-8&nullDatabaseMeansCurrent=true&useServerPrepStmts=true&cachePrepStmts=true
+    username: root
+    password: 2eZpo5L6HW_1
+
 rules:
-  - !FOO_XXX
-    ...
-  - !BAR_XXX
-    ...
+  - !READWRITE_SPLITTING
+    dataSources:
+      readwrite_ds:
+        writeDataSourceName: write_ds
+        readDataSourceNames:
+          - read_ds_1
+          - read_ds_2
+        loadBalancerName: round_robin
+        transactionalReadQueryStrategy: PRIMARY
+    loadBalancers:
+      round_robin:
+        type: ROUND_ROBIN
+      random:
+        type: RANDOM
+      weight:
+        type: WEIGHT
+        props:
+          read_ds_1: 1
+          read_ds_2: 2
+  - !SINGLE
+    tables:
+      - "*.*"
 
 props:
-  key_1: value_1
-  key_2: value_2
+  # 在日志中打印 SQL
+  sql-show: true
